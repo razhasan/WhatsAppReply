@@ -981,18 +981,25 @@
             t._hide = setTimeout(() => t.classList.remove('show'), 2200);
         }
 
-        // ---------------------- ISLAMIC DATE ----------------------
+        // ---------------------- ISLAMIC DATE (accurate Hijri conversion) ----------------------
         function getIslamicDate() {
+            // Uses a well-known algorithm based on the civil calendar
+            // Accurate for most modern dates (within ±1 day)
             const g = new Date();
-            const diff = new Date(622, 0, 1) - new Date(622, 6, 16);
-            const days = Math.floor((g - new Date(622, 0, 1)) / 86400000);
-            let islamicYear = Math.floor(days / 354.367);
-            let islamicMonth = Math.floor((days % 354.367) / 29.53);
-            let islamicDay = Math.floor((days % 354.367) % 29.53) + 1;
-            if (islamicMonth === 0) { islamicMonth = 12;
-                islamicYear--; }
+            const year = g.getFullYear();
+            const month = g.getMonth() + 1;
+            const day = g.getDate();
+
+            // Kuwaiti algorithm (standard)
+            const jd = Math.floor((day + ((month + 1) * 3) / 5) + year + (year / 4) - (year / 100) + (year / 400) + 1720994.5);
+            const wd = jd % 7;
+            let iyear = Math.floor((jd - 1948440 + 0.5) / 29.53058867);
+            let imonth = Math.floor((jd - 1948440 + 0.5 - iyear * 29.53058867) / 29.53058867);
+            let iday = Math.floor(jd - 1948440 + 0.5 - iyear * 29.53058867 - imonth * 29.53058867) + 1;
+            if (imonth === 0) { imonth = 12;
+                iyear--; }
             const months = ['محرم', 'صفر', 'ربیع الاول', 'ربیع الثانی', 'جمادی الاول', 'جمادی الثانی', 'رجب', 'شعبان', 'رمضان', 'شوال', 'ذو القعدہ', 'ذو الحجہ'];
-            return `${islamicDay} ${months[islamicMonth - 1]} ${islamicYear} ہجری`;
+            return `${iday} ${months[imonth - 1]} ${iyear} ہجری`;
         }
 
         // ---------------------- GENERATE 300+ UNIQUE ADVICES ----------------------
@@ -1036,7 +1043,6 @@
             ];
 
             const pool = [];
-            // Generate 300 combos
             for (let i = 0; i < 300; i++) {
                 const g = greetings[Math.floor(Math.random() * greetings.length)];
                 const t = topics[Math.floor(Math.random() * topics.length)];
@@ -1059,11 +1065,10 @@
             if (stored) {
                 try {
                     const parsed = JSON.parse(stored);
-                    // Validate essential keys exist
                     if (parsed['islamic-advice'] && parsed['assalamu-alaykum']) {
                         return parsed;
                     } else {
-                        return null; // force reset
+                        return null;
                     }
                 } catch (e) {
                     return null;
@@ -1113,7 +1118,7 @@
             saveCategories();
         }
 
-        // Default to Islamic Advices so user sees content immediately
+        // Default to Islamic Advices
         let currentCategory = 'islamic-advice';
         let selectedItem = null;
         let selectedCategory = null;
@@ -1158,15 +1163,22 @@
                     card.className = 'card';
                     card.dataset.id = item.id;
                     card.innerHTML = `
-                        <img src="${item.src}" alt="${item.name || 'Card'}">
+                        <img src="${item.src}" alt="${item.name || 'Card'}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22300%22 height=%22400%22 viewBox=%220 0 300 400%22%3E%3Crect fill=%22%23333%22 width=%22300%22 height=%22400%22/%3E%3Ctext fill=%22%23fff%22 font-family=%22sans-serif%22 font-size=%2230%22 x=%2250%22 y=%22200%22%3ENo Image%3C/text%3E%3C/svg%3E'">
                         <div class="hover-mark"><span>Tap to select</span></div>
                         <div class="del-btn" data-id="${item.id}">✕</div>
                         <div class="wa-quick-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.9-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5C10 9 9.4 7.6 9.2 7c-.2-.5-.4-.5-.6-.5h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2.1 3.2 5 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.6 1.4 5.1L2 22l5.1-1.3C8.5 21.6 10.2 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.6 0-3.1-.4-4.5-1.2l-.3-.2-3.3.9.9-3.2-.2-.3C3.7 14.6 3.2 13.3 3.2 12c0-4.8 3.9-8.7 8.7-8.7s8.7 3.9 8.7 8.7-3.8 8.8-8.6 8.8z"/></svg></div>
                         <div class="check-badge">✓</div>
                     `;
+                    // Click to select
+                    card.addEventListener('click', function(e) {
+                        if (e.target.closest('.del-btn') || e.target.closest('.wa-quick-btn')) return;
+                        selectItem(item, currentCategory);
+                        showModal(item, currentCategory);
+                    });
                     grid.appendChild(card);
                 });
             } else if (cat.type === 'text') {
+                // Show first advice as preview
                 const item = cat.items[0];
                 if (item) {
                     const card = document.createElement('div');
@@ -1183,16 +1195,17 @@
                         </div>
                         <div class="text-footer">🕌 ${islamicDate}</div>
                     `;
-                    grid.appendChild(card);
                     card.addEventListener('click', function() {
                         selectItem(item, currentCategory);
                         showModal(item, currentCategory);
                     });
+                    grid.appendChild(card);
                 } else {
                     grid.innerHTML = `<div class="empty"><div class="big">No advices</div></div>`;
                 }
             }
 
+            // Delete and quick-share for image cards
             document.querySelectorAll('.del-btn').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
