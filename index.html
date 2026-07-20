@@ -361,11 +361,6 @@
             border-color: #ff8a8a;
         }
 
-        .card.selected {
-            border-color: var(--gold-bright);
-            box-shadow: 0 0 0 3px rgba(255, 209, 102, 0.35), var(--shadow);
-        }
-
         .card .wa-quick-btn {
             position: absolute;
             bottom: 8px;
@@ -417,7 +412,7 @@
         /* -------- TEXT CARD STYLES -------- */
         .card.text-card {
             aspect-ratio: auto;
-            min-height: 170px;
+            min-height: 180px;
             padding: 16px 14px;
             display: flex;
             flex-direction: column;
@@ -442,7 +437,7 @@
             line-height: 1.7;
             color: var(--cream);
             display: -webkit-box;
-            -webkit-line-clamp: 7;
+            -webkit-line-clamp: 6;
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -455,7 +450,7 @@
             color: var(--gold-bright);
             font-weight: 700;
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             font-size: 16px;
         }
 
@@ -590,7 +585,887 @@
 
         .modal-name .date-modal {
             color: var(--cream-dim);
-            font-size: 12px;
+            font-size: 13px;
             display: block;
             margin-top: 8px;
-            opacity: 0
+            opacity: 0.8;
+            border-top: 1px solid var(--line);
+            padding-top: 8px;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform .12s ease, filter .12s ease;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--whatsapp), #279a55);
+            color: #06170d;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.08);
+        }
+
+        .btn-secondary {
+            background: var(--panel-light);
+            color: var(--cream);
+            border: 1px solid var(--line);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--gold);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--cream-dim);
+            border: 1px solid transparent;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .btn-ghost:hover {
+            color: var(--cream);
+        }
+
+        .status-msg {
+            text-align: center;
+            font-size: 12.5px;
+            color: var(--gold-bright);
+            margin-top: 10px;
+            min-height: 16px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--panel-light);
+            border: 1px solid var(--gold);
+            color: var(--cream);
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            pointer-events: none;
+            transition: all .25s ease;
+            z-index: 100;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Share Bar */
+        .share-bar {
+            position: fixed;
+            left: 50%;
+            bottom: -140px;
+            transform: translateX(-50%);
+            width: min(560px, calc(100% - 32px));
+            background: rgba(15, 10, 22, 0.92);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+            z-index: 40;
+            transition: bottom .28s cubic-bezier(.2, .9, .3, 1);
+        }
+
+        .share-bar.open {
+            bottom: 18px;
+        }
+
+        .share-bar .share-thumb {
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            flex-shrink: 0;
+            object-fit: cover;
+            cursor: pointer;
+            background: var(--panel);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--gold);
+        }
+
+        .share-bar .info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .share-bar .info .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--gold-bright);
+            margin-bottom: 4px;
+        }
+
+        .share-bar .info .name {
+            font-size: 13px;
+            color: var(--cream-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .share-bar .bar-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .icon-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid var(--line);
+            background: var(--panel-light);
+            color: var(--cream);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform .12s ease, filter .12s ease;
+        }
+
+        .icon-btn:active {
+            transform: scale(0.94);
+        }
+
+        .icon-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .icon-btn.whatsapp {
+            background: linear-gradient(135deg, var(--whatsapp), #279a55);
+            color: #06170d;
+            border-color: transparent;
+            width: 46px;
+            height: 46px;
+        }
+
+        .share-bar-close {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            color: var(--cream-dim);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .share-bar {
+                padding: 12px;
+                gap: 9px;
+            }
+            .share-bar .share-thumb {
+                width: 44px;
+                height: 44px;
+            }
+            .icon-btn {
+                width: 38px;
+                height: 38px;
+            }
+            .icon-btn.whatsapp {
+                width: 42px;
+                height: 42px;
+            }
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 12px;
+            }
+            .card.text-card {
+                min-height: 150px;
+                padding: 12px 10px;
+            }
+            .card.text-card .text-content {
+                font-size: 14px;
+                -webkit-line-clamp: 5;
+            }
+        }
+
+        footer.note {
+            text-align: center;
+            color: var(--cream-dim);
+            font-size: 12px;
+            margin-top: 50px;
+            opacity: 0.7;
+            line-height: 1.6;
+        }
+
+        .add-cat-input-wrapper {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-left: 10px;
+        }
+        .add-cat-input-wrapper.show {
+            display: flex;
+        }
+        .add-cat-input-wrapper input {
+            background: var(--panel-light);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 6px 14px;
+            color: var(--cream);
+            font-size: 14px;
+            outline: none;
+            width: 140px;
+        }
+        .add-cat-input-wrapper input::placeholder {
+            color: var(--cream-dim);
+            opacity: 0.6;
+        }
+        .add-cat-input-wrapper .confirm-add-cat {
+            background: var(--gold);
+            border: none;
+            border-radius: 20px;
+            padding: 6px 16px;
+            color: #1a1305;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .add-cat-input-wrapper .confirm-add-cat:hover {
+            filter: brightness(1.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrap">
+        <header class="top">
+            <div class="eyebrow">Quick Reply Cards</div>
+            <h1>Salaam <span class="accent">Cards</span></h1>
+            <p class="sub">Tap a card to pick it — a WhatsApp button appears right away so you can send it straight to a contact.</p>
+            <div class="islamic-date" id="islamicDate"></div>
+        </header>
+
+        <div class="tabs-wrapper">
+            <div class="tabs" id="tabs"></div>
+            <button class="add-cat-btn" id="addCategoryBtn">+ Add Category</button>
+            <div class="add-cat-input-wrapper" id="addCatInputWrapper">
+                <input type="text" id="newCatName" placeholder="Category name" />
+                <button class="confirm-add-cat" id="confirmAddCat">Add</button>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div class="cat-title" id="catTitle"></div>
+            <div class="toolbar-actions">
+                <button class="random-btn" id="randomBtn" style="display:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                    Random
+                </button>
+                <button class="upload-btn" id="uploadBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Add image
+                </button>
+                <input type="file" id="fileInput" accept="image/*" multiple>
+            </div>
+        </div>
+
+        <div class="grid" id="grid"></div>
+
+        <footer class="note">Cards you add are saved in this browser only, on this device.<br>"Share to WhatsApp" opens your phone's share menu — pick WhatsApp and send. If your browser doesn't support that, it copies the image instead, ready to paste into the chat.</footer>
+    </div>
+
+    <!-- Share Bar -->
+    <div class="share-bar" id="shareBar">
+        <button class="share-bar-close" id="shareBarClose">✕</button>
+        <div class="share-thumb" id="shareThumb">🕌</div>
+        <div class="info">
+            <div class="label" id="shareLabel">Selected</div>
+            <div class="name" id="shareName"></div>
+        </div>
+        <div class="bar-actions">
+            <button class="icon-btn" id="barCopyBtn" title="Copy">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+            <button class="icon-btn" id="barDownloadBtn" title="Download">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+            <button class="icon-btn whatsapp" id="barShareBtn" title="Share to WhatsApp">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.9-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5C10 9 9.4 7.6 9.2 7c-.2-.5-.4-.5-.6-.5h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2.1 3.2 5 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.6 1.4 5.1L2 22l5.1-1.3C8.5 21.6 10.2 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.6 0-3.1-.4-4.5-1.2l-.3-.2-3.3.9.9-3.2-.2-.3C3.7 14.6 3.2 13.3 3.2 12c0-4.8 3.9-8.7 8.7-8.7s8.7 3.9 8.7 8.7-3.8 8.8-8.6 8.8z"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <button class="modal-close" id="modalClose">✕</button>
+            <div class="modal-img-wrap"><img id="modalImg" src="" alt=""></div>
+            <div class="modal-body">
+                <div class="modal-name" id="modalName"></div>
+                <div class="actions">
+                    <button class="btn btn-primary" id="shareBtn">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.9-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5C10 9 9.4 7.6 9.2 7c-.2-.5-.4-.5-.6-.5h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2.1 3.2 5 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.6 1.4 5.1L2 22l5.1-1.3C8.5 21.6 10.2 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.6 0-3.1-.4-4.5-1.2l-.3-.2-3.3.9.9-3.2-.2-.3C3.7 14.6 3.2 13.3 3.2 12c0-4.8 3.9-8.7 8.7-8.7s8.7 3.9 8.7 8.7-3.8 8.8-8.6 8.8z"/></svg>
+                        Share to WhatsApp
+                    </button>
+                    <button class="btn btn-secondary" id="copyBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        Copy
+                    </button>
+                    <button class="btn btn-secondary" id="downloadBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Download
+                    </button>
+                    <button class="btn btn-ghost" id="openWaWebBtn">Open WhatsApp Web instead</button>
+                    <button class="btn btn-ghost" id="deleteFromModal" style="display:none;">Remove this card</button>
+                </div>
+                <div class="status-msg" id="statusMsg"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ---------------------- HELPERS ----------------------
+        function $(id) { return document.getElementById(id); }
+
+        function toast(msg) {
+            const t = $('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(t._hide);
+            t._hide = setTimeout(() => t.classList.remove('show'), 2200);
+        }
+
+        // ---------------------- ISLAMIC DATE ----------------------
+        function getIslamicDate() {
+            const g = new Date();
+            const diff = new Date(622, 0, 1) - new Date(622, 6, 16);
+            const days = Math.floor((g - new Date(622, 0, 1)) / 86400000);
+            let islamicYear = Math.floor(days / 354.367);
+            let islamicMonth = Math.floor((days % 354.367) / 29.53);
+            let islamicDay = Math.floor((days % 354.367) % 29.53) + 1;
+            if (islamicMonth === 0) { islamicMonth = 12;
+                islamicYear--; }
+            const months = ['محرم', 'صفر', 'ربیع الاول', 'ربیع الثانی', 'جمادی الاول', 'جمادی الثانی', 'رجب', 'شعبان', 'رمضان', 'شوال', 'ذو القعدہ', 'ذو الحجہ'];
+            return `${islamicDay} ${months[islamicMonth - 1]} ${islamicYear} ہجری`;
+        }
+
+        // ---------------------- GENERATE 300+ UNIQUE ADVICES ----------------------
+        function generateAdvicePool() {
+            const greetings = ['السلام علیکم ورحمۃ اللہ وبرکاتہ', 'السلام علیکم', 'السلام علیکم و رحمۃ اللہ'];
+            const topics = [
+                'دنیا میں سب سے بہترین انسان وہ ہے جو دوسروں کے لیے مفید ہو۔',
+                'مسلمان وہ ہے جس کی زبان اور ہاتھ سے دوسرے مسلمان محفوظ رہیں۔',
+                'تم میں سے کوئی اس وقت تک مومن نہیں ہو سکتا جب تک وہ اپنے بھائی کے لیے وہی پسند نہ کرے جو اپنے لیے پسند کرتا ہے۔',
+                'اللہ تعالیٰ فرماتے ہیں: "مجھے یاد کرو، میں تمہیں یاد کروں گا۔"',
+                'بہترین صدقہ وہ ہے جو کسی غریب کو دیا جائے۔',
+                'جو شخص اللہ کی راہ میں ایک دن روزہ رکھے، اللہ اسے جہنم سے ستر سال کی دوری پر لے جائے گا۔',
+                'تم میں سے بہترین وہ ہے جو اپنے اہل و عیال کے ساتھ اچھا سلوک کرے۔',
+                'دعا ہی عبادت کا مغز ہے۔',
+                'اللہ تعالیٰ فرماتے ہیں: "بے شک اللہ انصاف اور احسان کا حکم دیتا ہے۔"',
+                'مسلمان وہ ہے جو اپنے بھائی کی حاجت پوری کرے۔',
+                'جو شخص اللہ کی راہ میں ایک قدم چلے، اللہ اس کے لیے جنت میں ایک گھر بنا دیتا ہے۔',
+                'تم میں سے بہترین وہ ہے جو قرآن سیکھے اور سکھائے۔',
+                'اللہ تعالیٰ فرماتے ہیں: "اور تم نیکی کرو، تاکہ تم فلاح پاؤ۔"',
+                'جو شخص کسی مسلمان کی عیب پوشی کرے، اللہ قیامت کے دن اس کی عیب پوشی کرے گا۔',
+                'بہترین انسان وہ ہے جو دوسروں کے لیے مفید ہو۔',
+                'اللہ تعالیٰ فرماتے ہیں: "اور تم اپنے رب سے مغفرت طلب کرو، بے شک وہ بہت معاف کرنے والا ہے۔"',
+                'جو شخص کسی مسلمان کو کھانا کھلائے، اللہ اسے جنت کا پھل کھلائے گا۔',
+                'تم میں سے بہترین وہ ہے جو اپنے بھائی سے ملاقات کرے۔',
+                'اللہ تعالیٰ فرماتے ہیں: "اور تم صبر کرو، بے شک اللہ صبر کرنے والوں کے ساتھ ہے۔"',
+                'جو شخص کسی مسلمان کی حاجت پوری کرے، اللہ اس کی حاجت پوری کرے گا۔'
+            ];
+            const refs = [
+                '(صحیح بخاری)', '(صحیح مسلم)', '(ترمذی)', '(سورۃ البقرہ: ۱۵۲)',
+                '(سورۃ النحل: ۹۰)', '(سورۃ الحج: ۷۷)', '(سورۃ نوح: ۱۰)',
+                '(سورۃ الانفال: ۴۶)', '(سورۃ البقرہ: ۲۶۱)', '(سورۃ لقمان: ۱۷)'
+            ];
+            const extras = [
+                'یہ بات ہمارے روزمرہ کے عمل کا حصہ ہونی چاہیے۔',
+                'اس پر عمل کرنا ہر مسلمان کا فرض ہے۔',
+                'اللہ ہمیں اس پر عمل کرنے کی توفیق عطا فرمائے۔',
+                'یہ اللہ کی رحمت ہے، ہمیں اسے غنیمت سمجھنا چاہیے۔',
+                'اس کے ذریعے ہم اپنے ایمان کو مضبوط کر سکتے ہیں۔',
+                'یہ سنتِ نبوی ﷺ ہے، اسے اپنانا چاہیے۔',
+                'اللہ ہم سب کو اس پر عمل کرنے والا بنائے۔'
+            ];
+
+            const pool = [];
+            // Generate 300 combos
+            for (let i = 0; i < 300; i++) {
+                const g = greetings[Math.floor(Math.random() * greetings.length)];
+                const t = topics[Math.floor(Math.random() * topics.length)];
+                const r = refs[Math.floor(Math.random() * refs.length)];
+                const e = extras[Math.floor(Math.random() * extras.length)];
+                let msg = `${g}\n\n${t}\n${e}`;
+                if (Math.random() > 0.5) msg += `\n${r}`;
+                pool.push({ text: msg });
+            }
+            return pool;
+        }
+
+        // ---------------------- STORAGE HELPERS ----------------------
+        function saveCategories() {
+            localStorage.setItem('salaamCategories', JSON.stringify(categories));
+        }
+
+        function loadCategories() {
+            const stored = localStorage.getItem('salaamCategories');
+            if (stored) {
+                try {
+                    const parsed = JSON.parse(stored);
+                    // Validate essential keys exist
+                    if (parsed['islamic-advice'] && parsed['assalamu-alaykum']) {
+                        return parsed;
+                    } else {
+                        return null; // force reset
+                    }
+                } catch (e) {
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        // ---------------------- INITIALIZE CATEGORIES ----------------------
+        let categories = loadCategories();
+        if (!categories) {
+            const advicePool = generateAdvicePool();
+            categories = {
+                'assalamu-alaykum': {
+                    label: 'Assalamu Alaykum',
+                    type: 'image',
+                    items: [
+                        { id: 'assalamu-1', name: 'Assalamu 1', src: 'https://picsum.photos/seed/assalamu1/300/400' },
+                        { id: 'assalamu-2', name: 'Assalamu 2', src: 'https://picsum.photos/seed/assalamu2/300/400' },
+                        { id: 'assalamu-3', name: 'Assalamu 3', src: 'https://picsum.photos/seed/assalamu3/300/400' }
+                    ]
+                },
+                'walikumsalam': {
+                    label: 'Walikumsalam',
+                    type: 'image',
+                    items: [
+                        { id: 'walikum-1', name: 'Walikumsalam 1', src: 'https://picsum.photos/seed/walikum1/300/400' },
+                        { id: 'walikum-2', name: 'Walikumsalam 2', src: 'https://picsum.photos/seed/walikum2/300/400' },
+                        { id: 'walikum-3', name: 'Walikumsalam 3', src: 'https://picsum.photos/seed/walikum3/300/400' }
+                    ]
+                },
+                'good-morning': {
+                    label: 'Good Morning',
+                    type: 'image',
+                    items: [
+                        { id: 'gm-1', name: 'Good Morning 1', src: 'https://picsum.photos/seed/gm1/300/400' },
+                        { id: 'gm-2', name: 'Good Morning 2', src: 'https://picsum.photos/seed/gm2/300/400' },
+                        { id: 'gm-3', name: 'Good Morning 3', src: 'https://picsum.photos/seed/gm3/300/400' }
+                    ]
+                },
+                'islamic-advice': {
+                    label: 'Islamic Advices',
+                    type: 'text',
+                    items: advicePool
+                }
+            };
+            saveCategories();
+        }
+
+        // Default to Islamic Advices so user sees content immediately
+        let currentCategory = 'islamic-advice';
+        let selectedItem = null;
+        let selectedCategory = null;
+
+        // ---------------------- RENDER FUNCTIONS ----------------------
+        function renderTabs() {
+            const tabsContainer = $('tabs');
+            tabsContainer.innerHTML = '';
+            for (const [key, cat] of Object.entries(categories)) {
+                const tab = document.createElement('div');
+                tab.className = 'tab' + (key === currentCategory ? ' active' : '');
+                tab.dataset.cat = key;
+                tab.innerHTML = `${cat.label} <span class="count">${cat.items.length}</span>`;
+                tab.addEventListener('click', () => switchCategory(key));
+                tabsContainer.appendChild(tab);
+            }
+        }
+
+        function switchCategory(key) {
+            currentCategory = key;
+            renderTabs();
+            renderGrid();
+            const cat = categories[key];
+            $('catTitle').textContent = cat.label;
+            $('randomBtn').style.display = (cat.type === 'text') ? 'flex' : 'none';
+            closeShareBar();
+        }
+
+        function renderGrid() {
+            const grid = $('grid');
+            grid.innerHTML = '';
+            const cat = categories[currentCategory];
+            if (!cat) return;
+            if (cat.items.length === 0) {
+                grid.innerHTML = `<div class="empty"><div class="big">No items yet</div><p>Add some cards to get started.</p></div>`;
+                return;
+            }
+
+            if (cat.type === 'image') {
+                cat.items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.dataset.id = item.id;
+                    card.innerHTML = `
+                        <img src="${item.src}" alt="${item.name || 'Card'}">
+                        <div class="hover-mark"><span>Tap to select</span></div>
+                        <div class="del-btn" data-id="${item.id}">✕</div>
+                        <div class="wa-quick-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.7-.9-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5C10 9 9.4 7.6 9.2 7c-.2-.5-.4-.5-.6-.5h-.5c-.2 0-.5.1-.7.3-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2.1 3.2 5 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.6 1.4 5.1L2 22l5.1-1.3C8.5 21.6 10.2 22 12 22c5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18c-1.6 0-3.1-.4-4.5-1.2l-.3-.2-3.3.9.9-3.2-.2-.3C3.7 14.6 3.2 13.3 3.2 12c0-4.8 3.9-8.7 8.7-8.7s8.7 3.9 8.7 8.7-3.8 8.8-8.6 8.8z"/></svg></div>
+                        <div class="check-badge">✓</div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } else if (cat.type === 'text') {
+                const item = cat.items[0];
+                if (item) {
+                    const card = document.createElement('div');
+                    card.className = 'card text-card';
+                    card.dataset.id = 0;
+                    const lines = item.text.split('\n');
+                    let previewText = lines.slice(0, 3).join('\n');
+                    if (lines.length > 3) previewText += '…';
+                    const islamicDate = getIslamicDate();
+                    card.innerHTML = `
+                        <div class="text-content">
+                            <span class="greeting">السلام علیکم</span>
+                            ${previewText.replace(/السلام علیکم[^\n]*\n/, '')}
+                        </div>
+                        <div class="text-footer">🕌 ${islamicDate}</div>
+                    `;
+                    grid.appendChild(card);
+                    card.addEventListener('click', function() {
+                        selectItem(item, currentCategory);
+                        showModal(item, currentCategory);
+                    });
+                } else {
+                    grid.innerHTML = `<div class="empty"><div class="big">No advices</div></div>`;
+                }
+            }
+
+            document.querySelectorAll('.del-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const id = this.dataset.id;
+                    const cat = categories[currentCategory];
+                    if (cat.type !== 'image') return;
+                    const idx = cat.items.findIndex(i => i.id === id);
+                    if (idx !== -1) {
+                        cat.items.splice(idx, 1);
+                        saveCategories();
+                        renderGrid();
+                        renderTabs();
+                        toast('Card removed');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.wa-quick-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const card = this.closest('.card');
+                    const id = card.dataset.id;
+                    const cat = categories[currentCategory];
+                    if (cat.type !== 'image') return;
+                    const item = cat.items.find(i => i.id === id);
+                    if (item) {
+                        selectItem(item, currentCategory);
+                        shareSelected();
+                    }
+                });
+            });
+        }
+
+        // ---------------------- SELECTION & SHARE ----------------------
+        function selectItem(item, categoryKey) {
+            selectedItem = item;
+            selectedCategory = categoryKey;
+            const bar = $('shareBar');
+            const thumb = $('shareThumb');
+            const name = $('shareName');
+            const label = $('shareLabel');
+            const cat = categories[categoryKey];
+            if (cat.type === 'image') {
+                thumb.innerHTML = `<img src="${item.src}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="">`;
+                name.textContent = item.name || 'Image';
+            } else {
+                thumb.textContent = '📜';
+                thumb.style.fontSize = '24px';
+                name.textContent = 'Islamic Advice';
+            }
+            label.textContent = 'Selected';
+            bar.classList.add('open');
+            const modal = $('modalOverlay');
+            if (modal.classList.contains('open')) {
+                showModal(item, categoryKey);
+            }
+        }
+
+        function closeShareBar() {
+            $('shareBar').classList.remove('open');
+        }
+
+        // ---------------------- MODAL ----------------------
+        function showModal(item, categoryKey) {
+            const modal = $('modalOverlay');
+            const imgWrap = document.querySelector('.modal-img-wrap');
+            const img = $('modalImg');
+            const nameDiv = $('modalName');
+            const cat = categories[categoryKey];
+            if (cat.type === 'image') {
+                imgWrap.style.display = 'flex';
+                img.src = item.src;
+                img.alt = item.name || 'Card';
+                nameDiv.textContent = item.name || '';
+                $('deleteFromModal').style.display = 'none';
+            } else {
+                imgWrap.style.display = 'none';
+                const islamicDate = getIslamicDate();
+                let text = item.text;
+                if (!text.includes('السلام علیکم')) {
+                    text = `السلام علیکم\n\n${text}`;
+                }
+                const fullText = `${text}\n\n🕌 ${islamicDate}`;
+                nameDiv.innerHTML = fullText;
+                $('deleteFromModal').style.display = 'none';
+            }
+            modal.classList.add('open');
+        }
+
+        function closeModal() {
+            $('modalOverlay').classList.remove('open');
+        }
+
+        // ---------------------- SHARE ACTIONS ----------------------
+        function shareSelected() {
+            if (!selectedItem) return toast('Select a card first');
+            const cat = categories[selectedCategory];
+            let content = '';
+            if (cat.type === 'image') {
+                content = selectedItem.src;
+            } else {
+                const islamicDate = getIslamicDate();
+                let text = selectedItem.text;
+                if (!text.includes('السلام علیکم')) {
+                    text = `السلام علیکم\n\n${text}`;
+                }
+                content = `${text}\n\n🕌 ${islamicDate}`;
+            }
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Salaam Cards',
+                    text: content,
+                    url: content.startsWith('http') ? content : undefined
+                }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(content).then(() => {
+                    toast('Copied to clipboard!');
+                }).catch(() => {
+                    prompt('Copy this:', content);
+                });
+            }
+        }
+
+        // ---------------------- RANDOM BUTTON ----------------------
+        $('randomBtn').addEventListener('click', function() {
+            const cat = categories['islamic-advice'];
+            if (!cat || cat.items.length === 0) return toast('No advices available');
+            const idx = Math.floor(Math.random() * cat.items.length);
+            const advice = cat.items[idx];
+            selectItem(advice, 'islamic-advice');
+            showModal(advice, 'islamic-advice');
+            toast('Random advice selected!');
+        });
+
+        // ---------------------- ADD CATEGORY ----------------------
+        $('addCategoryBtn').addEventListener('click', function() {
+            const wrapper = $('addCatInputWrapper');
+            wrapper.classList.toggle('show');
+            if (wrapper.classList.contains('show')) {
+                $('newCatName').focus();
+            }
+        });
+
+        $('confirmAddCat').addEventListener('click', function() {
+            const input = $('newCatName');
+            const name = input.value.trim();
+            if (!name) {
+                toast('Please enter a category name');
+                return;
+            }
+            const key = name.toLowerCase().replace(/\s+/g, '-');
+            if (categories[key]) {
+                toast('Category already exists');
+                return;
+            }
+            categories[key] = {
+                label: name,
+                type: 'image',
+                items: []
+            };
+            saveCategories();
+            input.value = '';
+            $('addCatInputWrapper').classList.remove('show');
+            renderTabs();
+            switchCategory(key);
+            toast(`Category "${name}" created!`);
+        });
+
+        $('newCatName').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                $('confirmAddCat').click();
+            }
+        });
+
+        // ---------------------- UPLOAD IMAGES ----------------------
+        $('uploadBtn').addEventListener('click', () => $('fileInput').click());
+        $('fileInput').addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (!files.length) return;
+            const cat = categories[currentCategory];
+            if (cat.type !== 'image') {
+                toast('Images can only be added to image categories');
+                this.value = '';
+                return;
+            }
+            for (const file of files) {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const id = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
+                    cat.items.push({
+                        id: id,
+                        name: file.name,
+                        src: ev.target.result
+                    });
+                    saveCategories();
+                    renderGrid();
+                    renderTabs();
+                    toast('Image added!');
+                };
+                reader.readAsDataURL(file);
+            }
+            this.value = '';
+        });
+
+        // ---------------------- EVENT BINDINGS ----------------------
+        renderTabs();
+        switchCategory('islamic-advice');
+
+        // Islamic date
+        $('islamicDate').textContent = `🕌 ${getIslamicDate()}`;
+
+        // Modal close
+        $('modalClose').addEventListener('click', closeModal);
+        $('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        // Share bar close
+        $('shareBarClose').addEventListener('click', closeShareBar);
+
+        // Share buttons
+        $('shareBtn').addEventListener('click', shareSelected);
+        $('barShareBtn').addEventListener('click', shareSelected);
+
+        // Copy button (bar)
+        $('barCopyBtn').addEventListener('click', function() {
+            if (!selectedItem) return toast('Select a card first');
+            const cat = categories[selectedCategory];
+            let content = '';
+            if (cat.type === 'image') {
+                content = selectedItem.src;
+            } else {
+                const islamicDate = getIslamicDate();
+                let text = selectedItem.text;
+                if (!text.includes('السلام علیکم')) {
+                    text = `السلام علیکم\n\n${text}`;
+                }
+                content = `${text}\n\n🕌 ${islamicDate}`;
+            }
+            navigator.clipboard.writeText(content).then(() => {
+                toast('Copied!');
+            }).catch(() => {
+                prompt('Copy this:', content);
+            });
+        });
+
+        // Download button (bar) – only for images
+        $('barDownloadBtn').addEventListener('click', function() {
+            if (!selectedItem || categories[selectedCategory].type !== 'image') {
+                toast('Only images can be downloaded');
+                return;
+            }
+            const link = document.createElement('a');
+            link.href = selectedItem.src;
+            link.download = selectedItem.name || 'card.jpg';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        // Open WhatsApp Web
+        $('openWaWebBtn').addEventListener('click', function() {
+            window.open('https://web.whatsapp.com', '_blank');
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+                closeShareBar();
+            }
+        });
+
+        toast('Welcome! Tap an advice to share or use Random.');
+    </script>
+</body>
+</html>
