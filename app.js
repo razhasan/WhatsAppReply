@@ -218,8 +218,9 @@ const modalOverlay = document.getElementById('modalOverlay');
 const modalImg = document.getElementById('modalImg');
 const modalName = document.getElementById('modalName');
 const modalClose = document.getElementById('modalClose');
+const shareBtn = document.getElementById('shareBtn');
 const copyBtn = document.getElementById('copyBtn');
-const openWaBtn = document.getElementById('openWaBtn');
+const openWaWebBtn = document.getElementById('openWaWebBtn');
 const downloadBtn = document.getElementById('downloadBtn');
 const deleteFromModal = document.getElementById('deleteFromModal');
 const statusMsg = document.getElementById('statusMsg');
@@ -244,6 +245,46 @@ modalOverlay.addEventListener('click', (e) => {
 });
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeModal();
+});
+
+function dataUrlToBlob(dataUrl) {
+  return fetch(dataUrl).then(res => res.blob());
+}
+
+function fileNameFor(img, ext) {
+  const base = (img.name || 'salaam-card').replace(/\.[a-z0-9]+$/i, '').replace(/\s+/g, '-');
+  return `${base}.${ext}`;
+}
+
+shareBtn.addEventListener('click', async () => {
+  if (!modalImage) return;
+  statusMsg.textContent = '';
+  try {
+    const blob = await dataUrlToBlob(modalImage.src);
+    const ext = blob.type === 'image/png' ? 'png' : 'jpg';
+    const file = new File([blob], fileNameFor(modalImage, ext), { type: blob.type });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file] });
+      statusMsg.textContent = 'Shared — pick WhatsApp from the menu that opened.';
+      return;
+    }
+    throw new Error('share-not-supported');
+  } catch (err) {
+    if (err && err.name === 'AbortError') {
+      // Person closed the share sheet themselves — do nothing.
+      return;
+    }
+    // Fallback: copy to clipboard so it can still be pasted into WhatsApp.
+    try {
+      const pngBlob = await dataUrlToPngBlob(modalImage.src);
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]);
+      statusMsg.textContent = 'Direct share isn\'t available here, so the image was copied instead — open WhatsApp and paste it in the chat.';
+      showToast('Image copied to clipboard');
+    } catch (err2) {
+      statusMsg.textContent = 'Sharing and copying aren\'t available in this browser — use "Download" and attach the image in WhatsApp manually.';
+    }
+  }
 });
 
 copyBtn.addEventListener('click', async () => {
@@ -279,9 +320,9 @@ function dataUrlToPngBlob(dataUrl) {
   });
 }
 
-openWaBtn.addEventListener('click', () => {
-  window.open('https://wa.me/', '_blank');
-  statusMsg.textContent = 'WhatsApp is opening — paste the copied image into your chat.';
+openWaWebBtn.addEventListener('click', () => {
+  window.open('https://web.whatsapp.com/', '_blank');
+  statusMsg.textContent = 'WhatsApp Web is opening — paste the copied image into your chat.';
 });
 
 downloadBtn.addEventListener('click', () => {
