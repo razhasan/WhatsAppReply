@@ -1408,6 +1408,30 @@ async function loadState() {
   db = await openDB();
   customCategories = await idbGetAll(STORE_CATEGORIES);
   userImages = await idbGetAll(STORE_IMAGES);
+
+  // Videos are kept as Blobs, not base64 data URLs — large data: URIs are
+  // unreliable for <video> playback/decoding in WebKit (they can fail to
+  // load or show a blank frame), and base64 also inflates size by ~33%.
+  // Object URLs only live for this page session, so derive a fresh one for
+  // every video on load; older records that still hold the video as a giant
+  // base64 string get migrated to a stored Blob in the same pass.
+  for (const img of userImages) {
+    if (!img.isVideo) continue;
+    if (img.blob) {
+      img.src = URL.createObjectURL(img.blob);
+    } else if (img.src && img.src.startsWith('data:')) {
+      try {
+        const blob = await (await fetch(img.src)).blob();
+        img.blob = blob;
+        img.mime = blob.type || img.mime;
+        delete img.src;
+        img.src = URL.createObjectURL(blob);
+        await idbPut(STORE_IMAGES, { id: img.id, category: img.category, blob, mime: img.mime, name: img.name, isVideo: true });
+      } catch (err) {
+        console.error('Failed to migrate legacy video record', img.id, err);
+      }
+    }
+  }
 }
 
 function allCategories() {
@@ -1570,6 +1594,7 @@ function renderGrid() {
         e.stopPropagation();
         if (confirm('Remove this card?')) {
           await idbDelete(STORE_IMAGES, img.id);
+          revokeVideoUrl(img);
           userImages = userImages.filter(u => u.id !== img.id);
           if (selectedImage && selectedImage.id === img.id) deselectCard();
           deleteSelection.delete(img.id);
@@ -1838,6 +1863,13 @@ function renderAll() {
   renderGrid();
 }
 
+// Video thumbnails use object URLs (see loadState/upload) which hold onto
+// the underlying Blob in memory until revoked — release it once a video card
+// is actually deleted.
+function revokeVideoUrl(img) {
+  if (img && img.isVideo && img.src) URL.revokeObjectURL(img.src);
+}
+
 function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
@@ -1964,6 +1996,7 @@ deleteSelectedBtn.addEventListener('click', async () => {
   const ids = Array.from(deleteSelection);
   for (const id of ids) {
     await idbDelete(STORE_IMAGES, id);
+    revokeVideoUrl(userImages.find(u => u.id === id));
   }
   userImages = userImages.filter(u => !deleteSelection.has(u.id));
   if (selectedImage && deleteSelection.has(selectedImage.id)) deselectCard();
@@ -1999,12 +2032,21 @@ uploadBtn.addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', async (e) => {
   const files = Array.from(e.target.files || []);
   for (const file of files) {
-    const dataUrl = await fileToDataUrl(file);
     const id = 'user-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     const isVideo = file.type.startsWith('video/');
-    const record = { id, category: currentCategory, src: dataUrl, name: file.name, isVideo };
-    userImages.push(record);
-    await idbPut(STORE_IMAGES, record);
+    let storedRecord, memRecord;
+    if (isVideo) {
+      // Store the raw Blob for videos instead of a base64 data URL — large
+      // data: URIs are unreliable for <video> playback/decoding in WebKit.
+      storedRecord = { id, category: currentCategory, blob: file, mime: file.type, name: file.name, isVideo: true };
+      memRecord = { ...storedRecord, src: URL.createObjectURL(file) };
+    } else {
+      const dataUrl = await fileToDataUrl(file);
+      storedRecord = { id, category: currentCategory, src: dataUrl, name: file.name, isVideo: false };
+      memRecord = storedRecord;
+    }
+    userImages.push(memRecord);
+    await idbPut(STORE_IMAGES, storedRecord);
   }
   fileInput.value = '';
   renderAll();
@@ -2156,8 +2198,11 @@ async function copyImage(img, onDone) {
 }
 
 function downloadImage(img) {
-  const mimeMatch = /^data:([^;]+);/.exec(img.src);
-  const ext = extFromMime(mimeMatch ? mimeMatch[1] : 'image/jpeg');
+  // Videos are blob: URLs (no MIME in the URL itself), so prefer the stored
+  // mime field; images are still data: URLs, so sniff the prefix as before.
+  const mimeMatch = /^data:([^;]+);/.exec(img.src || '');
+  const mime = img.mime || (mimeMatch ? mimeMatch[1] : 'image/jpeg');
+  const ext = extFromMime(mime);
   const a = document.createElement('a');
   a.href = img.src;
   a.download = fileNameFor(img, ext);
@@ -2179,6 +2224,7 @@ deleteFromModal.addEventListener('click', async () => {
   if (!modalImage || modalImage.builtin) return;
   if (confirm('Remove this card?')) {
     await idbDelete(STORE_IMAGES, modalImage.id);
+    revokeVideoUrl(modalImage);
     userImages = userImages.filter(u => u.id !== modalImage.id);
     closeModal();
     renderAll();
