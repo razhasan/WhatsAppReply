@@ -210,15 +210,19 @@
     display:block;
   }
   .card .video-badge{
-    position:absolute; top:8px; left:8px;
-    width:26px; height:26px;
+    position:absolute; bottom:8px; left:8px;
+    width:32px; height:32px;
     border-radius:50%;
-    background: rgba(15,36,25,0.65);
+    background: rgba(15,36,25,0.72);
+    border: 1px solid var(--line);
     color:#fff;
     display:flex; align-items:center; justify-content:center;
-    font-size:12px;
-    pointer-events:none;
+    font-size:13px;
+    cursor:pointer;
+    z-index: 6;
+    transition: background .15s ease, transform .15s ease;
   }
+  .card .video-badge:active{ transform: scale(0.9); }
   .card .hover-mark{
     position:absolute; inset:0;
     background: linear-gradient(to top, rgba(15,36,25,0.85) 0%, rgba(15,36,25,0) 45%);
@@ -227,6 +231,7 @@
     justify-content:center;
     padding: 10px;
     opacity:0;
+    pointer-events:none;
     transition: opacity .18s ease;
   }
   .card:hover .hover-mark{ opacity:1; }
@@ -1490,7 +1495,7 @@ function renderGrid() {
     card.dataset.id = img.id;
     card.innerHTML = `
       ${img.isVideo
-        ? `<video class="card-media" src="${img.src}" muted playsinline preload="metadata"></video><div class="video-badge">▶</div>`
+        ? `<video class="card-media" src="${img.src}" playsinline preload="metadata"></video><div class="video-badge">▶</div>`
         : `<img class="card-media" src="${img.src}" alt="${escapeHtml(img.name || '')}" loading="lazy">`
       }
       <div class="check-badge">✓</div>
@@ -1511,6 +1516,25 @@ function renderGrid() {
       }
       selectCard(img);
     });
+
+    // Video cards get an inline play/pause preview via the ▶ badge, so you can
+    // check the clip before sending it — separate from tapping the card to pick it.
+    if (img.isVideo) {
+      const video = card.querySelector('video.card-media');
+      const badge = card.querySelector('.video-badge');
+      badge.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (video.paused) {
+          document.querySelectorAll('video.card-media').forEach(v => { if (v !== video) v.pause(); });
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      });
+      video.addEventListener('play', () => { badge.textContent = '⏸'; });
+      video.addEventListener('pause', () => { badge.textContent = '▶'; });
+      video.addEventListener('ended', () => { video.currentTime = 0; });
+    }
 
     // Long-press (touch or mouse) on a deletable card jumps straight into Select
     // mode with that card already checked — same gesture as a phone's photo app.
