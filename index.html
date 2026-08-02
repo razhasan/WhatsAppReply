@@ -203,10 +203,21 @@
     box-shadow: var(--shadow);
     border-color: var(--gold);
   }
-  .card img{
+  .card img,
+  .card video{
     width:100%; height:100%;
     object-fit: cover;
     display:block;
+  }
+  .card .video-badge{
+    position:absolute; top:8px; left:8px;
+    width:26px; height:26px;
+    border-radius:50%;
+    background: rgba(15,36,25,0.65);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px;
+    pointer-events:none;
   }
   .card .hover-mark{
     position:absolute; inset:0;
@@ -408,7 +419,8 @@
     max-height: 55vh;
     overflow:hidden;
   }
-  .modal-img-wrap img{ width:100%; height:100%; object-fit:contain; max-height:55vh; }
+  .modal-img-wrap img,
+  .modal-img-wrap video{ width:100%; height:100%; object-fit:contain; max-height:55vh; }
 
   .modal-body{ padding: 18px 20px 22px; }
   .modal-name{ font-size: 13px; color: var(--cream-dim); margin-bottom: 14px; }
@@ -559,7 +571,8 @@
   }
   .share-bar.open{ bottom: 18px; }
 
-  .share-bar img{
+  .share-bar img,
+  .share-bar video{
     width: 52px; height: 52px;
     object-fit: cover;
     border-radius: 10px;
@@ -625,7 +638,7 @@
 
   @media (max-width: 480px){
     .share-bar{ padding: 12px; gap: 9px; }
-    .share-bar img{ width:44px; height:44px; }
+    .share-bar img, .share-bar video{ width:44px; height:44px; }
     .icon-btn{ width:38px; height:38px; }
     .icon-btn.whatsapp{ width:42px; height:42px; }
   }
@@ -774,10 +787,10 @@
       </button>
       <button class="upload-btn" id="uploadBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        Add image
+        Add image/video
       </button>
     </div>
-    <input type="file" id="fileInput" accept="image/*" multiple>
+    <input type="file" id="fileInput" accept="image/*,video/*" multiple>
   </div>
 
   <div class="grid" id="grid"></div>
@@ -789,6 +802,7 @@
 <div class="share-bar" id="shareBar">
   <button class="share-bar-close" id="shareBarClose">✕</button>
   <img id="shareBarThumb" src="" alt="" title="Tap to preview">
+  <video id="shareBarThumbVideo" src="" muted playsinline title="Tap to preview" style="display:none;"></video>
   <div class="info">
     <div class="label">Selected</div>
     <div class="name" id="shareBarName"></div>
@@ -823,7 +837,7 @@
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <button class="modal-close" id="modalClose">✕</button>
-    <div class="modal-img-wrap"><img id="modalImg" src="" alt=""></div>
+    <div class="modal-img-wrap"><img id="modalImg" src="" alt=""><video id="modalVideo" src="" controls playsinline style="display:none;"></video></div>
     <div class="modal-body">
       <div class="modal-name" id="modalName"></div>
       <div class="actions">
@@ -1475,7 +1489,10 @@ function renderGrid() {
       + (isDeleteChecked ? ' delete-selected' : '');
     card.dataset.id = img.id;
     card.innerHTML = `
-      <img src="${img.src}" alt="${escapeHtml(img.name || '')}" loading="lazy">
+      ${img.isVideo
+        ? `<video class="card-media" src="${img.src}" muted playsinline preload="metadata"></video><div class="video-badge">▶</div>`
+        : `<img class="card-media" src="${img.src}" alt="${escapeHtml(img.name || '')}" loading="lazy">`
+      }
       <div class="check-badge">✓</div>
       ${!img.builtin ? `<div class="select-check">✓</div>` : ''}
       <div class="hover-mark"><span>Tap to pick →</span></div>
@@ -1487,7 +1504,7 @@ function renderGrid() {
 
     // Tapping the image: in Select mode, toggle its checkbox (if it's deletable).
     // Otherwise, behave as before — pick it for the share bar.
-    card.querySelector('img').addEventListener('click', () => {
+    card.querySelector('.card-media').addEventListener('click', () => {
       if (selectionMode) {
         if (!img.builtin) toggleDeleteSelect(img.id);
         return;
@@ -1799,6 +1816,7 @@ function escapeHtml(str) {
 // ---------- Card selection + floating share bar ----------
 const shareBar = document.getElementById('shareBar');
 const shareBarThumb = document.getElementById('shareBarThumb');
+const shareBarThumbVideo = document.getElementById('shareBarThumbVideo');
 const shareBarName = document.getElementById('shareBarName');
 const shareBarClose = document.getElementById('shareBarClose');
 const barCopyBtn = document.getElementById('barCopyBtn');
@@ -1810,7 +1828,17 @@ function selectCard(img) {
   document.querySelectorAll('.card').forEach(el => {
     el.classList.toggle('selected', el.dataset.id === img.id);
   });
-  shareBarThumb.src = img.src;
+  if (img.isVideo) {
+    shareBarThumbVideo.src = img.src;
+    shareBarThumbVideo.style.display = '';
+    shareBarThumb.style.display = 'none';
+    shareBarThumb.src = '';
+  } else {
+    shareBarThumb.src = img.src;
+    shareBarThumb.style.display = '';
+    shareBarThumbVideo.style.display = 'none';
+    shareBarThumbVideo.src = '';
+  }
   shareBarName.textContent = img.name || '';
   shareBar.classList.add('open');
 }
@@ -1823,6 +1851,9 @@ function deselectCard() {
 
 shareBarClose.addEventListener('click', deselectCard);
 shareBarThumb.addEventListener('click', () => {
+  if (selectedImage) openModal(selectedImage);
+});
+shareBarThumbVideo.addEventListener('click', () => {
   if (selectedImage) openModal(selectedImage);
 });
 barCopyBtn.addEventListener('click', () => { if (selectedImage) copyImage(selectedImage, showToast); });
@@ -1939,13 +1970,14 @@ fileInput.addEventListener('change', async (e) => {
   for (const file of files) {
     const dataUrl = await fileToDataUrl(file);
     const id = 'user-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
-    const record = { id, category: currentCategory, src: dataUrl, name: file.name };
+    const isVideo = file.type.startsWith('video/');
+    const record = { id, category: currentCategory, src: dataUrl, name: file.name, isVideo };
     userImages.push(record);
     await idbPut(STORE_IMAGES, record);
   }
   fileInput.value = '';
   renderAll();
-  showToast(files.length > 1 ? `${files.length} images added` : 'Image added');
+  showToast(files.length > 1 ? `${files.length} files added` : 'File added');
 });
 
 function fileToDataUrl(file) {
@@ -1960,6 +1992,7 @@ function fileToDataUrl(file) {
 // ---------- Modal ----------
 const modalOverlay = document.getElementById('modalOverlay');
 const modalImg = document.getElementById('modalImg');
+const modalVideo = document.getElementById('modalVideo');
 const modalName = document.getElementById('modalName');
 const modalClose = document.getElementById('modalClose');
 const shareBtn = document.getElementById('shareBtn');
@@ -1971,7 +2004,17 @@ const statusMsg = document.getElementById('statusMsg');
 
 function openModal(img) {
   modalImage = img;
-  modalImg.src = img.src;
+  if (img.isVideo) {
+    modalVideo.src = img.src;
+    modalVideo.style.display = '';
+    modalImg.style.display = 'none';
+    modalImg.src = '';
+  } else {
+    modalImg.src = img.src;
+    modalImg.style.display = '';
+    modalVideo.style.display = 'none';
+    modalVideo.src = '';
+  }
   modalName.textContent = img.name || '';
   statusMsg.textContent = '';
   deleteFromModal.style.display = img.builtin ? 'none' : 'block';
@@ -1980,6 +2023,8 @@ function openModal(img) {
 
 function closeModal() {
   modalOverlay.classList.remove('open');
+  modalVideo.pause();
+  modalVideo.src = '';
   modalImage = null;
 }
 
@@ -1998,6 +2043,15 @@ function dataUrlToBlob(dataUrl) {
 function fileNameFor(img, ext) {
   const base = (img.name || 'salaam-card').replace(/\.[a-z0-9]+$/i, '').replace(/\s+/g, '-');
   return `${base}.${ext}`;
+}
+
+// Maps a MIME type (from a blob or a "data:<mime>;base64," prefix) to a sensible file extension.
+function extFromMime(mime) {
+  const map = {
+    'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp', 'image/gif': 'gif',
+    'video/mp4': 'mp4', 'video/webm': 'webm', 'video/quicktime': 'mov', 'video/ogg': 'ogv',
+  };
+  return map[mime] || (mime && mime.split('/')[1]) || 'bin';
 }
 
 function dataUrlToPngBlob(dataUrl) {
@@ -2027,7 +2081,7 @@ async function shareImage(img, onStatus) {
   };
   try {
     const blob = await dataUrlToBlob(img.src);
-    const ext = blob.type === 'image/png' ? 'png' : 'jpg';
+    const ext = extFromMime(blob.type);
     const file = new File([blob], fileNameFor(img, ext), { type: blob.type });
 
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -2038,6 +2092,11 @@ async function shareImage(img, onStatus) {
     throw new Error('share-not-supported');
   } catch (err) {
     if (err && err.name === 'AbortError') return;
+    // Clipboard image-copy only works for still images — for video, skip straight to download.
+    if (img.isVideo) {
+      setStatus('Direct share isn\'t available here — use "Download" and attach the video in WhatsApp manually.');
+      return;
+    }
     try {
       const pngBlob = await dataUrlToPngBlob(img.src);
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]);
@@ -2050,6 +2109,11 @@ async function shareImage(img, onStatus) {
 }
 
 async function copyImage(img, onDone) {
+  // Clipboard API doesn't support copying video — send those straight to download instead.
+  if (img.isVideo) {
+    if (modalImage && modalImage.id === img.id) statusMsg.textContent = 'Video can\'t be copied to the clipboard — use "Download" instead and attach it in WhatsApp.';
+    return;
+  }
   try {
     const blob = await dataUrlToPngBlob(img.src);
     await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
@@ -2061,9 +2125,11 @@ async function copyImage(img, onDone) {
 }
 
 function downloadImage(img) {
+  const mimeMatch = /^data:([^;]+);/.exec(img.src);
+  const ext = extFromMime(mimeMatch ? mimeMatch[1] : 'image/jpeg');
   const a = document.createElement('a');
   a.href = img.src;
-  a.download = fileNameFor(img, img.src.startsWith('data:image/png') ? 'png' : 'jpg');
+  a.download = fileNameFor(img, ext);
   document.body.appendChild(a);
   a.click();
   a.remove();
